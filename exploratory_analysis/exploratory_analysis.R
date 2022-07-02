@@ -25,5 +25,5 @@ barplot(delay_not_zero_cancel$n,
         names.arg = delay_not_zero_cancel$arrival_delay,
         col = "darkred")
 bfd = bfd %>% dplyr::filter(situation_type != "CANCELADO")
-
+bfd <- subset (bfd, select = -situation_type)
 
