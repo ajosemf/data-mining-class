@@ -7,6 +7,7 @@ source("data-mining-class/utils/myGraphic.R")
 colors <- brewer.pal(11, 'Paired')
 font <- theme(text = element_text(size=16))
 loadlibrary("MASS")
+loadlibrary("gridExtra")
 
 load("data-mining-class/data/bfd.rda")
 colnames(bfd)
@@ -83,3 +84,53 @@ barplot(delayed$n,
 (delayed %>% dplyr::filter(delayed == 1))$n / sum(delayed$n)  # 0.3103303 (delayed frequency)
 
 
+###################################################
+# Meteorological analysis (DEPARTURE)
+
+bfd$delayed = as.factor(bfd$delayed)
+
+bfd = bfd %>% mutate(delayed_str = case_when(
+  delayed == 0 ~ "no",
+  delayed == 1 ~ "yes"
+))
+
+grfA <- plot.density.class(bfd %>% dplyr::select(delayed_str, depart_temperature), 
+                           class_label="delayed_str", label_x = "temperature", color=colors[c(1,5)]) + font
+grfB <- plot.density.class(bfd %>% dplyr::select(delayed_str, depart_dew_point), 
+                           class_label="delayed_str", label_x = "dew point", color=colors[c(1,5)]) + font
+grfC <- plot.density.class(bfd %>% dplyr::select(delayed_str, depart_humidity), 
+                           class_label="delayed_str", label_x = "humidity", color=colors[c(1,5)]) + font
+grfD <- plot.density.class(bfd %>% dplyr::select(delayed_str, depart_visibility), 
+                           class_label="delayed_str", label_x = "visibility", color=colors[c(1,5)]) + font
+grfE <- plot.density.class(bfd %>% dplyr::select(delayed_str, depart_ceiling), 
+                           class_label="delayed_str", label_x = "ceiling", color=colors[c(1,5)]) + font
+grfF <- plot.density.class(bfd %>% dplyr::select(delayed_str, depart_wind_speed), 
+                           class_label="delayed_str", label_x = "wind_speed", color=colors[c(1,5)]) + font
+plot.size(8, 24)
+grid.arrange(grfA, grfB, grfC, grfD, grfE, grfF,
+             ncol=3, nrow=2)
+
+
+bfd %>% dplyr::count(depart_cloudiness)  # only NA
+bfd %>% dplyr::count(depart_pressure)    # value 1015 on all objects
+
+
+grfA <- plot.density.class(bfd %>% dplyr::select(delayed_str, ds_depart_wind_speed), 
+                           class_label="delayed_str", label_x = "ds wind speed", color=colors[c(1,5)],
+                           rotate_x=TRUE) + font
+grfB <- plot.density.class(bfd %>% dplyr::select(delayed_str, depart_wind_direction), 
+                           class_label="delayed_str", label_x = "wind direction", color=colors[c(1,5)],
+                           rotate_x=TRUE) + font
+grfC <- plot.density.class(bfd %>% dplyr::select(delayed_str, ds_depart_wind_direction), 
+                           class_label="delayed_str", label_x = "ds wind direction", color=colors[c(1,5)],
+                           rotate_x=TRUE) + font
+grfD <- plot.density.class(bfd %>% dplyr::select(delayed_str, ds_depart_day_period), 
+                           class_label="delayed_str", label_x = "ds day period", color=colors[c(1,5)],
+                           rotate_x=TRUE) + font
+plot.size(8, 8)
+grid.arrange(grfA, grfB,
+             ncol=2, nrow=1)
+
+plot.size(8, 8)
+grid.arrange(grfC, grfD,
+             ncol=2, nrow=1)
