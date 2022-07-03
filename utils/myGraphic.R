@@ -361,7 +361,7 @@ plot.density <-  function(data, label_x = "", label_y = "", colors = NULL, bin =
   return(grf)
 }
 
-plot.density.class <-  function(data, class_label, label_x = "", label_y = "", colors = NULL, bin = NULL, alpha=0.5) {
+plot.density.class <-  function(data, class_label, label_x = "", label_y = "", colors = NULL, bin = NULL, alpha=0.5, rotate_x=FALSE) {
   data <- melt(data, id=class_label)
   colnames(data)[1] <- "x"
   if (!is.factor(data$x))
@@ -378,6 +378,8 @@ plot.density.class <-  function(data, class_label, label_x = "", label_y = "", c
     grf <- grf + scale_fill_manual(name = levels(data$x), values = colors)
   grf <- grf + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) 
   grf <- grf + theme(legend.title = element_blank(), legend.position = "bottom")
+  if (rotate_x)
+    grf <- grf + scale_x_discrete(guide = guide_axis(angle = 90))
   return(grf)
 }
 
