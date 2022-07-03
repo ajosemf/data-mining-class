@@ -85,7 +85,7 @@ barplot(delayed$n,
 
 
 ###################################################
-# Meteorological analysis (DEPARTURE)
+# Meteorological analysis (DEPARTURE - density plots)
 
 bfd$delayed = as.factor(bfd$delayed)
 
@@ -134,3 +134,40 @@ grid.arrange(grfA, grfB,
 plot.size(8, 8)
 grid.arrange(grfC, grfD,
              ncol=2, nrow=1)
+
+
+###################################################
+# Meteorological analysis (DEPARTURE - scatter plots)
+
+colnames(bfd)[c(14,15,16,18,20,21,22,23,24,25,50)]
+bfd_departure = subset (bfd, select = c(14,15,16,18,20,21,22,23,24,25,50))
+colnames(bfd_departure)
+
+# bloco 1
+tmp = subset (bfd_departure, select = c(1,2,3,11))
+plot.size(12, 12)
+grf <- plot.pair(data=tmp, cnames=colnames(tmp)[1:3], 
+                 clabel='delayed_str', title="Flight Departure", colors=colors[c(1,5)])
+grf
+
+# bloco 2
+tmp = subset (bfd_departure, select = c(4,5,6,11))
+plot.size(12, 12)
+grf <- plot.pair(data=tmp, cnames=colnames(tmp)[1:3], 
+                 clabel='delayed_str', title="Flight Departure", colors=colors[c(1,5)])
+grf
+
+# bloco 3
+tmp = subset (bfd_departure, select = c(7,8,9,10,11))
+plot.size(12, 12)
+grf <- plot.pair(data=tmp, cnames=colnames(tmp)[1:3], 
+                 clabel='delayed_str', title="Flight Departure", colors=colors[c(1,5)])
+grf
+
+
+###################################################
+# Meteorological analysis (ARRIVAL - density plots)
+
+
+
+
