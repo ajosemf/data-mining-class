@@ -135,6 +135,59 @@ plot.size(8, 8)
 grid.arrange(grfC, grfD,
              ncol=2, nrow=1)
 
+###################################################
+# Meteorological analysis (ARRIVAL - density plots)
+
+
+bfd$delayed = as.factor(bfd$delayed)
+
+bfd = bfd %>% mutate(delayed_str = case_when(
+  delayed == 0 ~ "no",
+  delayed == 1 ~ "yes"
+))
+
+grfA <- plot.density.class(bfd %>% dplyr::select(delayed_str, arrival_temperature), 
+                           class_label="delayed_str", label_x = "temperature", color=colors[c(1,5)]) + font
+grfB <- plot.density.class(bfd %>% dplyr::select(delayed_str, arrival_dew_point), 
+                           class_label="delayed_str", label_x = "dew point", color=colors[c(1,5)]) + font
+grfC <- plot.density.class(bfd %>% dplyr::select(delayed_str, arrival_humidity), 
+                           class_label="delayed_str", label_x = "humidity", color=colors[c(1,5)]) + font
+grfD <- plot.density.class(bfd %>% dplyr::select(delayed_str, arrival_visibility), 
+                           class_label="delayed_str", label_x = "visibility", color=colors[c(1,5)]) + font
+grfE <- plot.density.class(bfd %>% dplyr::select(delayed_str, arrival_ceiling), 
+                           class_label="delayed_str", label_x = "ceiling", color=colors[c(1,5)]) + font
+grfF <- plot.density.class(bfd %>% dplyr::select(delayed_str, arrival_wind_speed), 
+                           class_label="delayed_str", label_x = "wind_speed", color=colors[c(1,5)]) + font
+plot.size(8, 24)
+grid.arrange(grfA, grfB, grfC, grfD, grfE, grfF,
+             ncol=3, nrow=2)
+
+
+bfd %>% dplyr::count(depart_cloudiness)  # only NA
+bfd %>% dplyr::count(depart_pressure)    # value 1015 on all objects
+
+
+grfA <- plot.density.class(bfd %>% dplyr::select(delayed_str, ds_arrival_wind_speed), 
+                           class_label="delayed_str", label_x = "ds wind speed", color=colors[c(1,5)],
+                           rotate_x=TRUE) + font
+grfB <- plot.density.class(bfd %>% dplyr::select(delayed_str, arrival_wind_direction), 
+                           class_label="delayed_str", label_x = "wind direction", color=colors[c(1,5)],
+                           rotate_x=TRUE) + font
+grfC <- plot.density.class(bfd %>% dplyr::select(delayed_str, ds_arrival_wind_direction), 
+                           class_label="delayed_str", label_x = "ds wind direction", color=colors[c(1,5)],
+                           rotate_x=TRUE) + font
+grfD <- plot.density.class(bfd %>% dplyr::select(delayed_str, ds_arrival_day_period), 
+                           class_label="delayed_str", label_x = "ds day period", color=colors[c(1,5)],
+                           rotate_x=TRUE) + font
+plot.size(8, 8)
+grid.arrange(grfA, grfB,
+             ncol=2, nrow=1)
+
+plot.size(8, 8)
+grid.arrange(grfC, grfD,
+             ncol=2, nrow=1)
+
+
 
 ###################################################
 # Meteorological analysis (DEPARTURE - scatter plots)
@@ -164,10 +217,17 @@ grf <- plot.pair(data=tmp, cnames=colnames(tmp)[1:3],
                  clabel='delayed_str', title="Flight Departure", colors=colors[c(1,5)])
 grf
 
-
 ###################################################
-# Meteorological analysis (ARRIVAL - density plots)
+# Meteorological analysis (ARRIVE - scatter plots)
 
+colnames(bfd)[c(35,36,37,40,41,42,43,44,45,46,50)]
+bfd_arrive = subset (bfd, select = c(35,36,37,40,41,42,43,44,45,46,50))
+colnames(bfd_arrive)
 
-
+# bloco 1
+#tmp = subset (bfd_arrive, select = c(1,2,3,11))
+plot.size(12, 12)
+grf <- plot.pair(data=bfd_arrive, cnames=colnames(bfd_arrive)[1:10], 
+                 clabel='delayed_str', title="Flight Arrive", colors=colors[c(1,5)])
+grf
 
