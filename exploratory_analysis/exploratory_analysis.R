@@ -67,8 +67,8 @@ head(delay %>% dplyr::filter(arrival_delay > 0))
 tail(delay %>% dplyr::filter(arrival_delay > 0))
 
 bfd = bfd %>% mutate(delayed = case_when(
-  arrival_delay > 0 ~ 1,
-  arrival_delay <= 0 ~ 0
+  arrival_delay > 0 ~ 0,
+  arrival_delay <= 0 ~ 1
 ))
 
 delayed = bfd %>% dplyr::count(delayed)
@@ -77,7 +77,7 @@ barplot(delayed$n,
         main = "Delayed flights",
         xlab = "Delayed flight",
         ylab = "# Delayed flight",
-        names.arg = c('no', 'yes'),
+        names.arg = c('yes', 'no'),
         col = "darkred")
 
 (delayed %>% dplyr::filter(delayed == 0))$n / sum(delayed$n)  # 0.6896697 (NOT delayed frequency)
