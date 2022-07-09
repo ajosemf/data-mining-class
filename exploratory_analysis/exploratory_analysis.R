@@ -1,6 +1,23 @@
-source("data-mining-class/utils/myBasic.R")
-source("data-mining-class/utils/myGraphic.R")
+# at Regulus
+# source("data-mining-class/utils/myBasic.R")
+# source("data-mining-class/utils/myGraphic.R")
 
+# at Local
+source("utils/myBasic.R")
+source("utils/myGraphic.R")
+
+# PNG functions
+ROOT_PLOTS_PATH = "exploratory_analysis/plots/"
+png.init = function(filename, pointsize=20) {
+  filepath = paste(ROOT_PLOTS_PATH, filename)
+  png(file=filepath,
+      width=1280, 
+      height=800,
+      pointsize = pointsize)
+}
+png.save = function(){
+  dev.off()
+}
 
 ###################################################
 # config and load data
@@ -9,25 +26,41 @@ font <- theme(text = element_text(size=16))
 loadlibrary("MASS")
 loadlibrary("gridExtra")
 
-load("data-mining-class/data/bfd.rda")
+# at Regulus
+# load("data-mining-class/data/bfd.rda")
+
+# at Local
+load("data/bfd.rda")
+
 colnames(bfd)
 
 
 ###################################################
 # plot and removing canceled flights
 bfd_cancel = bfd %>% dplyr::filter(situation_type == "CANCELADO")
+unique(bfd_cancel %>% dplyr::select(departure_delay))
 unique(bfd_cancel %>% dplyr::select(arrival_delay))
-delay_cancel = bfd_cancel %>% dplyr::count(arrival_delay)
-delay_cancel
-delay_not_zero_cancel = delay_cancel %>% dplyr::filter(arrival_delay != 0)
-delay_not_zero_cancel
-sum(delay_not_zero_cancel$n)
-barplot(delay_not_zero_cancel$n,
-        main = "Arrival delays on canceled flights",
-        xlab = "Arrival delay value",
-        ylab = "# Arrival delay",
-        names.arg = delay_not_zero_cancel$arrival_delay,
+
+departure_delay_cancel = bfd_cancel %>% dplyr::count(departure_delay)
+departure_delay_cancel
+
+
+departure_delay_not_zero_cancel = departure_delay_cancel %>% dplyr::filter(departure_delay != 0)
+departure_delay_not_zero_cancel
+sum(departure_delay_not_zero_cancel$n)
+
+png.init(filename = "departure_delays_on_canceled_flights.png")
+barplot(departure_delay_not_zero_cancel$n,
+        main = "Departure delays on canceled flights",
+        xlab = "Departure delay value",
+        ylab = "# Departure delay",
+        names.arg = departure_delay_not_zero_cancel$departure_delay,
         col = "darkred")
+png.save()
+
+arrival_delay_cancel = bfd_cancel %>% dplyr::count(arrival_delay)
+arrival_delay_cancel
+
 bfd = bfd %>% dplyr::filter(situation_type != "CANCELADO")
 bfd <- subset (bfd, select = -situation_type)
 "situation_type" %in% colnames(bfd)
@@ -36,11 +69,13 @@ bfd <- subset (bfd, select = -situation_type)
 ###################################################
 # Delays analysis
 
+png.init(filename = "arrival_delay.png")
 grf <- plot.boxplot(bfd$arrival_delay,
                     label_x = "Arrival Delay", 
                     colors=colors[1]) + font
 plot.size(6, 3)
 plot(grf)
+png.save()
 
 grf <- plot.hist(bfd %>% dplyr::select(arrival_delay), 
                  label_x = "Arrival Delay", 
@@ -66,6 +101,12 @@ tmp %>% dplyr::select(expected_depart_date,
 head(delay %>% dplyr::filter(arrival_delay > 0))
 tail(delay %>% dplyr::filter(arrival_delay > 0))
 
+head(bfd %>% dplyr::select(expected_arrival_date, 
+                           real_arrival_date, 
+                           expected_arrival_hour, 
+                           real_arrival_hour, 
+                           arrival_delay))
+
 bfd = bfd %>% mutate(delayed = case_when(
   arrival_delay > 0 ~ 0,
   arrival_delay <= 0 ~ 1
@@ -73,12 +114,15 @@ bfd = bfd %>% mutate(delayed = case_when(
 
 delayed = bfd %>% dplyr::count(delayed)
 delayed
+png.init(filename = 'delayed_flights.png')
 barplot(delayed$n,
         main = "Delayed flights",
         xlab = "Delayed flight",
         ylab = "# Delayed flight",
         names.arg = c('yes', 'no'),
         col = "darkred")
+png.save()
+
 
 (delayed %>% dplyr::filter(delayed == 0))$n / sum(delayed$n)  # 0.6896697 (NOT delayed frequency)
 (delayed %>% dplyr::filter(delayed == 1))$n / sum(delayed$n)  # 0.3103303 (delayed frequency)
@@ -106,9 +150,11 @@ grfE <- plot.density.class(bfd %>% dplyr::select(delayed_str, depart_ceiling),
                            class_label="delayed_str", label_x = "ceiling", color=colors[c(1,5)]) + font
 grfF <- plot.density.class(bfd %>% dplyr::select(delayed_str, depart_wind_speed), 
                            class_label="delayed_str", label_x = "wind_speed", color=colors[c(1,5)]) + font
+png.init(filename = 'departure_density_1.png')
 plot.size(8, 24)
 grid.arrange(grfA, grfB, grfC, grfD, grfE, grfF,
              ncol=3, nrow=2)
+png.save()
 
 
 bfd %>% dplyr::count(depart_cloudiness)  # only NA
