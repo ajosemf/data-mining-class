@@ -377,3 +377,34 @@ for (col_i in meteorological_cols[1:length(meteorological_cols)-1]){
     png.save()
   }
 }
+
+
+###################################################
+# Feature engineering
+
+# DEPARTURE
+bfd = bfd %>% mutate(depart_temp_minus_dew_point = depart_temperature - depart_dew_point)
+grfA <- plot.boxplot(bfd$depart_temp_minus_dew_point,
+                    label_x = "Departure Temperature - Dew Point", 
+                    colors=colors[1]) + font
+grfB <- plot.density.class(bfd %>% dplyr::select(departure_delayed, depart_temp_minus_dew_point), 
+                          class_label="departure_delayed", label_x = "Departure Temperature - Dew Point", color=colors[c(1,5)]) + font
+plot.size(8, 8)
+png.init(filename = 'departure_temp_minus_dew_point.png')
+grid.arrange(grfA, grfB,
+             ncol=2, nrow=1)
+png.save()
+
+
+# ARRIVAL
+bfd = bfd %>% mutate(arrival_temp_minus_dew_point = arrival_temperature - arrival_dew_point)
+grfA <- plot.boxplot(bfd$arrival_temp_minus_dew_point,
+                     label_x = "Arrival Temperature - Dew Point", 
+                     colors=colors[1]) + font
+grfB <- plot.density.class(bfd %>% dplyr::select(arrival_delayed, arrival_temp_minus_dew_point), 
+                           class_label="arrival_delayed", label_x = "Arrival Temperature - Dew Point", color=colors[c(1,5)]) + font
+plot.size(8, 8)
+png.init(filename = 'arrival_temp_minus_dew_point.png')
+grid.arrange(grfA, grfB,
+             ncol=2, nrow=1)
+png.save()
