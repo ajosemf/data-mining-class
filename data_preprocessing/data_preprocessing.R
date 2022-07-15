@@ -1,10 +1,10 @@
-# at Regulus
+dara# at Regulus
 # source("data-mining-class/utils/myBasic.R")
 # source("data-mining-class/utils/myGraphic.R")
 
 # at Local
-source("utils/myBasic.R")
-source("utils/myGraphic.R")
+source("../utils/myBasic.R")
+source("../utils/myGraphic.R")
 
 # PNG functions
 PLOTS_ROOT_PATH = "data_preprocessing/plots/"
@@ -30,5 +30,10 @@ loadlibrary("gridExtra")
 # load("data-mining-class/data/bfd.rda")
 
 # at Local
-load("data/bfd.rda")
+load("../data/bfd.rda")
 colnames(bfd)
+
+#################################################
+#remove cancelado 
+
+less_cancelado = bfd %>% filter(situation_type == "CANCELADO")%>%count(flight_id)
