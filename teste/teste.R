@@ -6,6 +6,18 @@
 source("../utils/myBasic.R")
 source("../utils/myGraphic.R")
 
+## Import library
+library(DataExplorer)
+
+
+## Import library
+library(ExPanDaR)
+
+## Import library
+library(dataMaid)
+
+
+
 # PNG functions
 PLOTS_ROOT_PATH = "data_preprocessing/plots/"
 png.init = function(filename, pointsize=20) {
@@ -33,16 +45,23 @@ loadlibrary("gridExtra")
 load("../data/bfd.rda")
 colnames(bfd)
 
+################################################
+
+
+summary(bfd)
+
+#contador de voos cancelados
+less_cancelado = bfd %>% filter(situation_type == "CANCELADO")%>%count(flight_id)
+
+show(less_cancelado)
+#alguém 
+
+#create_report(bfd)
+## Create report
+##ExPanD(bfd)
+makeDataReport(bfd, output = "html", replace = TRUE)
 
 #################################################
-#Data Cleaning 
+#Data Clean
 
 #Voos cancelados
-#contado voos cancelados
-count_voos_canceled = sum((bfd %>% filter(situation_type == "CANCELADO")%>%count(flight_id))$n)
-print(count_voos_canceled)
-#retirando voos cancelados trazendo só os realizados
-bfd = bfd %>% filter(situation_type == "REALIZADOS")
-sprintf("Forma retiradas %d linhas que representavam voos cancelados",count_voos_canceled)
-
-
