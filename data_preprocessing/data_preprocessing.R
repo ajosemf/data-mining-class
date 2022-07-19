@@ -34,9 +34,10 @@ load("../data/bfd.rda")
 colnames(bfd)
 
 
-#################################################
+#################################################################
 #Data Cleaning 
 
+#################################################
 #Voos cancelados
 # Os voos cancelados não são alvo de nossa análise, somente os que tiveram atraso
 #contado voos cancelados
@@ -44,8 +45,17 @@ count_voos_canceled = sum((bfd %>% filter(situation_type == "CANCELADO")%>%count
 print(count_voos_canceled)
 #retirando voos cancelados trazendo só os realizados
 bfd = bfd %>% filter(situation_type == "REALIZADOS")
+backup_bfd = bfd
 sprintf("Foram retiradas %d linhas que representavam voos cancelados",count_voos_canceled)
+
 
 #analisando o arrival ceiling apesar dos outliers eu acho que se for metro pode existir, acho que vale referenciar
 
+##################################################
 # arrival_humidity acredito que não deveria ser maior igual a 100% , pois 100% é o ponto de saturação da água no ar acho q vale referenciar
+
+humidity_limit = 100 #atribui a variavel por conta de possiveis mudanças
+bfd = backup_bfd
+#contar voos que passam o limite
+count_voos_arrival_humidity_over =  sum((bfd %>% filter(arrival_humidity > humidity_limit)%>%count(flight_id))$n)
+
