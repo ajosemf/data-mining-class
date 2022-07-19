@@ -45,17 +45,43 @@ count_voos_canceled = sum((bfd %>% filter(situation_type == "CANCELADO")%>%count
 print(count_voos_canceled)
 #retirando voos cancelados trazendo só os realizados
 bfd = bfd %>% filter(situation_type == "REALIZADOS")
-backup_bfd = bfd
 sprintf("Foram retiradas %d linhas que representavam voos cancelados",count_voos_canceled)
 
-
-#analisando o arrival ceiling apesar dos outliers eu acho que se for metro pode existir, acho que vale referenciar
+##################################################
+# arrival_ceiling analisando o  apesar dos outliers eu acho que se for metro pode existir, acho que vale referenciar
 
 ##################################################
-# arrival_humidity acredito que não deveria ser maior igual a 100% , pois 100% é o ponto de saturação da água no ar acho q vale referenciar
-
-humidity_limit = 100 #atribui a variavel por conta de possiveis mudanças
-bfd = backup_bfd
+# arrival_humidity (Percentage of relative humidity in the destination airport) acredito que não deveria ser maior igual a 100% , pois 100% é o ponto de saturação da água no ar acho q vale referenciar
+#atribui a variavel por conta de possiveis mudanças
+humidity_limit = 100 
 #contar voos que passam o limite
 count_voos_arrival_humidity_over =  sum((bfd %>% filter(arrival_humidity > humidity_limit)%>%count(flight_id))$n)
+print(count_voos_arrival_humidity_over)
+#Filtrando o bfd por um valor de umidade máximo
+bfd = bfd %>% filter(arrival_humidity <= humidity_limit)
+sprintf("Foram retiradas %d linhas que representavam valores de umidade mais altos que 100",count_voos_arrival_humidity_over)
+
+##################################################
+# depart_humidity ( Percentage of relative humidity in the airport of origin) acredito que não deveria ser maior igual a 100% , pois 100% é o ponto de saturação da água no ar acho q vale referenciar
+#atribui a variavel por conta de possiveis mudanças
+humidity_limit = 100 
+#contar voos que passam o limite
+count_voos_depart_humidity_over =  sum((bfd %>% filter(depart_humidity > humidity_limit)%>%count(flight_id))$n)
+print(count_voos_depart_humidity_over)
+#Filtrando o bfd por um valor de umidade máximo
+bfd = bfd %>% filter(depart_humidity <= humidity_limit)
+sprintf("Foram retiradas %d linhas que representavam valores de umidade mais altos que 100",count_voos_depart_humidity_over)
+
+##################################################
+# real_duration (Difference in minutes between real departure and arrival datetime ) acredito que não deveria ser pelo menos a nível do Brasíl 45 min 13H ou 780 min  , pois 100% é o ponto de saturação da água no ar acho q vale referenciar
+#atribui a variavel por conta de possiveis mudanças
+limit_min = 45
+limit_max = 780
+#contar voos que passam o limite
+count_voos_real_duration_out =  sum((bfd %>% filter(real_duration >= 45 & real_duration <= 780)%>%count(flight_id))$n)
+print(count_voos_real_duration_out)
+#Filtrando o bfd por um valor de umidade máximo
+bfd = bfd %>% filter(real_duration >= 45 & real_duration <= 780)
+sprintf("Foram retiradas %d linhas que representavam valores de umidade mais altos que 100",count_voos_real_duration_out)
+
 
