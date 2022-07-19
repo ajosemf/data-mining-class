@@ -82,6 +82,18 @@ count_voos_real_duration_out =  sum((bfd %>% filter(real_duration >= 45 & real_d
 print(count_voos_real_duration_out)
 #Filtrando o bfd por um valor de umidade máximo
 bfd = bfd %>% filter(real_duration >= 45 & real_duration <= 780)
-sprintf("Foram retiradas %d linhas que representavam valores de umidade mais altos que 100",count_voos_real_duration_out)
+sprintf("Foram retiradas %d linhas que representavam valores de real duração além de possibilidades normais, que seria entre 45 e 780",count_voos_real_duration_out)
 
+##################################################
+# real_duration (Difference in minutes between real departure and arrival datetime ) acredito que não deveria ser pelo menos a nível do Brasíl 45 min 13H ou 780 min  , pois 100% é o ponto de saturação da água no ar acho q vale referenciar
+#atribui a variavel por conta de possiveis mudanças
+limit_min = 45
+limit_max = 780
+#contar voos que passam o limite
+count_voos_real_duration_out =  sum((bfd %>% filter(real_duration >= 45 & real_duration <= 780)%>%count(flight_id))$n)
+print(count_voos_real_duration_out)
+#Filtrando o bfd por um valor de umidade máximo
+bfd = bfd %>% filter(real_duration >= 45 & real_duration <= 780)
+sprintf("Foram retiradas %d linhas que representavam valores de real duração além de possibilidades normais, que seria entre 45 e 780",count_voos_real_duration_out)
 
+teste = bfd %>% filter(departure_delay >= -5 & departure_delay <= 5)
