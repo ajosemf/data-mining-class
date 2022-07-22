@@ -44,7 +44,7 @@ colnames(bfd)
 count_voos_canceled = sum((bfd %>% filter(situation_type == "CANCELADO")%>%count(flight_id))$n)
 print(count_voos_canceled)
 #retirando voos cancelados trazendo só os realizados
-bfd = bfd %>% filter(situation_type == "REALIZADOS")
+bfd = bfd %>% filter(situation_type == "REALIZADO")
 sprintf("Foram retiradas %d linhas que representavam voos cancelados",count_voos_canceled)
 
 ##################################################
@@ -89,11 +89,22 @@ sprintf("Foram retiradas %d linhas que representavam valores de real duração a
 #atribui a variavel por conta de possiveis mudanças
 
 #contar voos que passam o limite
-count_voos_departure_delay_out =  sum((bfd %>% filter(departure_delay< -1440 | real_duration > 1440)%>%count(flight_id))$n)
+count_voos_departure_delay_out =  sum((bfd %>% filter(departure_delay< -1440 | departure_delay > 1440)%>%count(flight_id))$n)
 print(count_voos_departure_delay_out)
 #Filtrando o bfd por um valor de umidade máximo
 bfd = bfd %>% filter(real_duration >= -1440 & real_duration <= 1440)
-sprintf("Foram retiradas %d linhas que representavam valores de real duração além de possibilidades normais, que seria entre 45 e 780",count_voos_real_duration_out)
+sprintf("Foram retiradas %d linhas que representavam valores de real duração além de possibilidades normais, que seria entre -1440 e 1440 minutos",count_voos_real_duration_out)
+
+##################################################
+# arrive_delay (Difference in minutes between expected and real arrive datetime; ) Pelo artigo do trabalho : Finally, the regulation of ANAC prohibits delays higher than 24 hours .
+#atribui a variavel por conta de possiveis mudanças
+
+#contar voos que passam o limite
+count_voos_arrive_delay_out =  sum((bfd %>% filter(arrive_delay< -1440 | arrive_delay > 1440)%>%count(flight_id))$n)
+print(count_voos_departure_delay_out)
+#Filtrando o bfd por um valor de umidade máximo
+bfd = bfd %>% filter(real_duration >= -1440 & real_duration <= 1440)
+sprintf("Foram retiradas %d linhas que representavam valores de real duração além de possibilidades normais, que seria entre -1440 e 1440",count_voos_real_duration_out)
 
 
 
