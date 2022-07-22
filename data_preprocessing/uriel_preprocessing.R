@@ -1,5 +1,69 @@
-#Load dataset
-load("d:/bfd.rda")
+load("../data/bfd.rda")
+
+library("tidyr")
+library("tidyverse")
+library(dplyr)
+library(tidyr)
+library(caret)
+#Data Cleaning 
+#################################################
+#Voos cancelados
+# Os voos cancelados não são alvo de nossa análise, somente os que tiveram atraso
+#contado voos cancelados
+count_voos_canceled = sum((bfd %>% filter(situation_type == "CANCELADO")%>%count(flight_id))$n)
+print(count_voos_canceled)
+#retirando voos cancelados trazendo só os realizados
+bfd = bfd %>% filter(situation_type == "REALIZADO")
+sprintf("Foram retiradas %d linhas que representavam voos cancelados",count_voos_canceled)
+
+##################################################
+# arrival_ceiling analisando o  apesar dos outliers eu acho que se for metro pode existir, acho que vale referenciar
+
+##################################################
+# arrival_humidity (Percentage of relative humidity in the destination airport) acredito que não deveria ser maior igual a 100% , pois 100% é o ponto de saturação da água no ar acho q vale referenciar
+#atribui a variavel por conta de possiveis mudanças
+humidity_limit = 100 
+#contar voos que passam o limite
+count_voos_arrival_humidity_over =  sum((bfd %>% filter(arrival_humidity > humidity_limit)%>%count(flight_id))$n)
+print(count_voos_arrival_humidity_over)
+#Filtrando o bfd por um valor de umidade máximo
+bfd = bfd %>% filter(arrival_humidity <= humidity_limit)
+sprintf("Foram retiradas %d linhas que representavam valores de umidade mais altos que 100",count_voos_arrival_humidity_over)
+
+##################################################
+# depart_humidity ( Percentage of relative humidity in the airport of origin) acredito que não deveria ser maior igual a 100% , pois 100% é o ponto de saturação da água no ar acho q vale referenciar
+#atribui a variavel por conta de possiveis mudanças
+humidity_limit = 100 
+#contar voos que passam o limite
+count_voos_depart_humidity_over =  sum((bfd %>% filter(depart_humidity > humidity_limit)%>%count(flight_id))$n)
+print(count_voos_depart_humidity_over)
+#Filtrando o bfd por um valor de umidade máximo
+bfd = bfd %>% filter(depart_humidity <= humidity_limit)
+sprintf("Foram retiradas %d linhas que representavam valores de umidade mais altos que 100",count_voos_depart_humidity_over)
+
+##################################################
+# real_duration (Difference in minutes between real departure and arrival datetime ) acredito que não deveria ser pelo menos a nível do Brasíl 45 min 13H ou 780 min  , pois 100% é o ponto de saturação da água no ar acho q vale referenciar
+#atribui a variavel por conta de possiveis mudanças
+limit_min = 45
+limit_max = 780
+#contar voos que passam o limite
+count_voos_real_duration_out =  sum((bfd %>% filter(real_duration < 45 | real_duration > 780)%>%count(flight_id))$n)
+print(count_voos_real_duration_out)
+#Filtrando o bfd por um valor de umidade máximo
+bfd = bfd %>% filter(real_duration >= 45 & real_duration <= 780)
+sprintf("Foram retiradas %d linhas que representavam valores de real duração além de possibilidades normais, que seria entre 45 e 780",count_voos_real_duration_out)
+
+##################################################
+# departure_delay (Difference in minutes between expected and real departure datetime; ) Pelo artigo do trabalho : Finally, the regulation of ANAC prohibits delays higher than 24 hours .
+#atribui a variavel por conta de possiveis mudanças
+
+#contar voos que passam o limite
+count_voos_departure_delay_out =  sum((bfd %>% filter(departure_delay< -1440 | real_duration > 1440)%>%count(flight_id))$n)
+print(count_voos_departure_delay_out)
+#Filtrando o bfd por um valor de umidade máximo
+bfd = bfd %>% filter(real_duration >= -1440 & real_duration <= 1440)
+sprintf("Foram retiradas %d linhas que representavam valores de real duração além de possibilidades normais, que seria entre 45 e 780",count_voos_real_duration_out)
+
 
 
 #Remoção de colunas 
@@ -12,8 +76,7 @@ bfd$depart_cloudiness = NULL
 bfd$justification_description = NULL
 bfd$justification_code = NULL
                        
-library("tidyr")
-library("tidyverse")
+
 
 #DepartVis = bfd %>% select(depart_visibility)
 trainDataframe = bfd %>% drop_na(depart_visibility)  
@@ -30,37 +93,12 @@ dataframe = dataframe %>% drop_na(arrival_wind_direction)
 
 
 
-
-
-origens = dataframe %>% select()
-obj = lapply(dataframe, mean, na.rm=TRUE)
-
-aeroportos = dataframe %>% distinct(origin_icao)
-mean(dataframe[dataframe$origin_icao, 'arrival_ceiling'],na.rm=TRUE)
-
-
-MediaArrivalCeiling = lapply(split(dataframe$arrival_ceiling, dataframe$destination_icao), mean, na.rm=TRUE) 
-MediaDepartCeiling = lapply(split(dataframe$depart_ceiling, dataframe$origin_icao), mean, na.rm=TRUE) 
-
-
-
-library(dplyr)
-library(tidyr)
-dataframe2 = dataframe %>% group_by(destination_icao) %>% mutate_at(vars(arrival_ceiling), ~replace_na(., mean(., na.rm = TRUE)))
-
-dataframe3 = dataframe2 %>% group_by(origin_icao) %>% mutate_at(vars(depart_ceiling), ~replace_na(., mean(., na.rm = TRUE)))
-
-
-   
-
-
-dataframe$arrival_visibility[dataframe$arrival_visibility == "NA" & dataframe$arrival_cloudiness == "NA"] <- "6.21"
                     
 dataframe = dataframe %>% mutate(Partida_Atrasada = case_when(departure_delay > 0 ~ '1',departure_delay <=0 ~ '0'))
 dataframe = dataframe %>% mutate(Chegada_Atrasada = case_when(arrival_delay > 0 ~ '1',arrival_delay <=0 ~ '0'))
 
 
-library(caret)
+
 
 
 #PREDIÇÃO ARRIVAL VISIBILITY
@@ -107,7 +145,18 @@ library(dataMaid)
 ExPanD(dataframe)
 makeDataReport(dataframe, output = "html", replace = TRUE)  
 
+dataframe$ds_arrival_wind_direction[dataframe$ds_arrival_wind_direction == "Not Informed" ] <- NA
+dataframe_wind = dataframe %>% drop_na(ds_arrival_wind_direction)
 
+#PREDIÇÃO DS ARRIVAL WIND DIRECTION
+df_treino_AC <- dataframe_wind
+modelo_NA <- train(ds_arrival_wind_direction ~ .,data=df_treino_AC, method="rpart", trControl = trainControl(method="cv", number= 5))
+dataframe$ds_arrival_wind_direction[is.na(dataframe$ds_arrival_wind_direction)] <- predict(modelo_NA, dataframe[is.na(dataframe$ds_arrival_wind_direction),])
+sum(is.na(dataframe$arrival_ceiling))
+
+count = sum((dataframe %>% filter(ds_arrival_wind_direction == "Not Informed")%>%count(ds_arrival_wind_direction))$n)
+
+wind = dataframe%>% filter(dataframe$ds_arrival_wind_direction == "Not Informed")
 
 
 
