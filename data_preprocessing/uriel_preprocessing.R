@@ -1,4 +1,4 @@
-load("../data/bfd.rda")
+
 
 library("tidyr")
 library("tidyverse")
@@ -6,6 +6,11 @@ library("lubridate")
 library(dplyr)
 library(tidyr)
 library(caret)
+# at Local
+
+load("../data/bfd.rda")
+colnames(bfd)
+
 
 #################################################################
 #Data Cleaning 
@@ -17,7 +22,7 @@ library(caret)
 count_voos_canceled = sum((bfd %>% filter(situation_type == "CANCELADO")%>%count(flight_id))$n)
 print(count_voos_canceled)
 #retirando voos cancelados trazendo só os realizados
-bfd = bfd %>% filter(situation_type == "REALIZADOS")
+bfd = bfd %>% filter(situation_type == "REALIZADO")
 sprintf("Foram retiradas %d linhas que representavam voos cancelados",count_voos_canceled)
 
 ##################################################
@@ -69,6 +74,7 @@ bfd = bfd %>% filter(real_duration >= -1440 & real_duration <= 1440)
 sprintf("Foram retiradas %d linhas que representavam valores de real duração além de possibilidades normais, que seria entre 45 e 780",count_voos_real_duration_out)
 
 
+
 #Remoção de colunas 
 bfd$airline_name = NULL
 bfd$origin_name = NULL
@@ -98,10 +104,11 @@ dataframe = dataframe %>% drop_na(arrival_wind_direction)
 
 
 
-
-                    
 dataframe = dataframe %>% mutate(Partida_Atrasada = case_when(departure_delay > 0 ~ '1',departure_delay <=0 ~ '0'))
 dataframe = dataframe %>% mutate(Chegada_Atrasada = case_when(arrival_delay > 0 ~ '1',arrival_delay <=0 ~ '0'))
+                    
+#dataframe = dataframe %>% mutate(Partida_Atrasada = as.logical(case_when(departure_delay > 0 ~ 'TRUE',departure_delay <=0 ~ '')))
+#dataframe = dataframe %>% mutate(Chegada_Atrasada = as.locical(case_when(arrival_delay > 0 ~ '1',arrival_delay <=0 ~ '0')))
 
 
 
@@ -190,4 +197,30 @@ sum(bfd$justification_code[bfd$justification_code == "N/A"])
 
 Justcode = sum((bfd %>% filter(justification_code == "N/A")%>%count(justification_code))$n)
 
+
+# ensure results are repeatable
+set.seed(7)
+# load the library
+install.packages("mlbench")
+library(mlbench)
+library(caret)
+
+dataframe$Chegada_Atrasada = as.logical(dataframe$Chegada_Atrasada)
+dataframe$Partida_Atrasada = as.logical(dataframe$Partida_Atrasada)
+
+
+# load the dataset
+data(PimaIndiansDiabetes)
+# prepare training scheme
+control <- trainControl(method="repeatedcv", number=10, repeats=3)
+# train the model
+model <- train(dataframe$Partida_Atrasada~., data=dataframe, method="lvq", preProcess="scale", trControl=control)
+# estimate variable importance
+importance <- varImp(model, scale=FALSE)
+# summarize importance
+print(importance)
+# plot importance
+plot(importance)
+
+class(dataframe$Chegada_Atrasada)
 
