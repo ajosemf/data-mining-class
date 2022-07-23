@@ -1,37 +1,8 @@
-# at Regulus
-# source("data-mining-class/utils/myBasic.R")
-# source("data-mining-class/utils/myGraphic.R")
 
-# at Local
-source("../utils/myBasic.R")
-source("../utils/myGraphic.R")
 
-# PNG functions
-PLOTS_ROOT_PATH = "data_preprocessing/plots/"
-png.init = function(filename, pointsize=20) {
-  filepath = paste(PLOTS_ROOT_PATH, filename)
-  png(file=filepath,
-      width=1280, 
-      height=800,
-      pointsize = pointsize)
-}
-png.save = function(){
-  dev.off()
-}
-
-###################################################
-# config and load data
-colors <- brewer.pal(11, 'Paired')
-font <- theme(text = element_text(size=16))
-loadlibrary("MASS")
-loadlibrary("gridExtra")
-
-# at Regulus
-# load("data-mining-class/data/bfd.rda")
-
+library(dplyr)
 # at Local
 load("../data/bfd.rda")
-colnames(bfd)
 
 
 #################################################################
@@ -106,5 +77,33 @@ print(count_voos_departure_delay_out)
 bfd = bfd %>% filter(real_duration >= -1440 & real_duration <= 1440)
 sprintf("Foram retiradas %d linhas que representavam valores de real duração além de possibilidades normais, que seria entre -1440 e 1440",count_voos_real_duration_out)
 
+##################################################
+# Tirando os valores onde a data de chegada tem a diferença de mais de 2 dias da data esperada, foi colocado 2 dias pois existe a possibilidade de diferenças perto da zero hora 
+#atribui a variavel por conta de possiveis mudanças
+
+#contar voos que passam o limite
+count_voos_arrive_vs_real_expected =  sum((bfd %>%  filter(abs(as.numeric(bfd$real_arrival_date) - as.numeric(bfd$expected_arrival_date))>2  )%>%count(flight_id))$n)
+print(count_voos_arrive_vs_real_expected)
+#Filtrando o bfd para que valores maiores que essa diferença não existam
+bfd = bfd %>% filter((abs(as.numeric(bfd$real_arrival_date) - as.numeric(bfd$expected_arrival_date))<=1))
+sprintf("Foram retirados %d  voos que a diferença entre o esperado para o real fosse mais do que 1 dia",count_voos_arrive_vs_real_expected )
+
+##################################################
+# Tirando os valores onde a data de partida tem a diferença de mais de 2 dias da data esperada, foi colocado 2 dias pois existe a possibilidade de diferenças perto da zero hora 
+#atribui a variavel por conta de possiveis mudanças
+
+#contar voos que passam o limite
+count_voos_departe_vs_real_expected =  sum((bfd %>%  filter(abs(as.numeric(bfd$real_depart_date) - as.numeric(bfd$expected_depart_date))>2  )%>%count(flight_id))$n)
+print(count_voos_depart_vs_real_expected)
+#Filtrando o bfd para que valores maiores que essa diferença não existam
+bfd = bfd %>% filter((abs(as.numeric(bfd$real_departe_date) - as.numeric(bfd$expected_departe_date))<=1))
+sprintf("Foram retirados %d  voos que a diferença entre o esperado para o real fosse mais do que 1 dia",count_voos_departe_vs_real_expected )
+
+################################################
+# Teste se a datada da chegada vem antes da saída
+
+count_voos_arrive_depart_diff =  sum(bfd %>% filter((as.numeric(bfd$real_arrival_date) - as.numeric(bfd$real_depart_date))>0 )%>%count(flight_id))$n
+print(count_voos_arrive_depart_diff)
+bfd = bfd %>% filter((as.numeric(bfd$real_arrival_date) - as.numeric(bfd$real_depart_date))==0)
 
 
