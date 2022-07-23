@@ -2,9 +2,11 @@ load("../data/bfd.rda")
 
 library("tidyr")
 library("tidyverse")
+library("lubridate")
 library(dplyr)
 library(tidyr)
 library(caret)
+
 #Data Cleaning 
 #################################################
 #Voos cancelados
@@ -75,6 +77,8 @@ bfd$destination_country = NULL
 bfd$depart_cloudiness = NULL
 bfd$justification_description = NULL
 bfd$justification_code = NULL
+bfd$depart_pressure = NULL
+bfd$arrival_pressure = NULL
                        
 
 
@@ -90,6 +94,7 @@ trainDataframe = trainDataframe %>% drop_na(arrival_ceiling)
 dataframe = bfd %>% drop_na(depart_visibility)  
 dataframe = dataframe %>% drop_na(depart_wind_direction) 
 dataframe = dataframe %>% drop_na(arrival_wind_direction)
+
 
 
 
@@ -124,13 +129,47 @@ dataframe_ACL= dataframe_ACL %>% drop_na(arrival_visibility)
 df_treino_ACL <-dataframe_ACL[,c("arrival_cloudiness","arrival_ceiling","arrival_humidity","arrival_temperature","arrival_visibility")]
 modelo_NA <- train(arrival_cloudiness ~ .,data=df_treino_ACL, method="rpart", trControl = trainControl(method="cv", number= 5))
 dataframe$arrival_cloudiness[is.na(dataframe$arrival_cloudiness)] <- predict(modelo_NA, dataframe[is.na(dataframe$arrival_cloudiness),])
-sum(is.na(dataframe$arrival_ceiling))
+sum(is.na(dataframe$arrival_cloudiness))
 
 #PREDIÇÃO DEPART CEILING
 df_treino_DC <- trainDataframe[,c("depart_ceiling","depart_humidity","depart_temperature","depart_visibility")]
 modelo_NA <- train(depart_ceiling ~ .,data=df_treino_DC, method="rpart", trControl = trainControl(method="cv", number= 5))
 dataframe$depart_ceiling[is.na(dataframe$depart_ceiling)] <- predict(modelo_NA, dataframe[is.na(dataframe$depart_ceiling),])
 sum(is.na(dataframe$depart_ceiling))
+
+
+#DS_ARRIVAL_WIND_DIRECTION NOT INFORMED RENAME TO NO WIND
+dataframe$ds_arrival_wind_direction = as.character(dataframe$ds_arrival_wind_direction)
+dataframe$ds_arrival_wind_direction[dataframe$ds_arrival_wind_direction =="Not Informed"] <- "NO WIND"
+dataframe$ds_arrival_wind_direction = as.factor(dataframe$ds_arrival_wind_direction)
+
+#DS_ARRIVAL_WIND_SPEED NOT INFORMED RENAME TO NO WIND
+dataframe$ds_arrival_wind_speed = as.character(dataframe$ds_arrival_wind_speed)
+dataframe$ds_arrival_wind_speed[dataframe$ds_arrival_wind_speed =="Not Informed"] <- "NO WIND"
+dataframe$ds_arrival_wind_speed = as.factor(dataframe$ds_arrival_wind_speed)
+
+#DS_DEPART_WIND_DIRECTION NOT INFORMED RENAME TO NO WIND
+dataframe$ds_depart_wind_direction = as.character(dataframe$ds_depart_wind_direction)
+dataframe$ds_depart_wind_direction[dataframe$ds_depart_wind_direction =="Not Informed"] <- "NO WIND"
+dataframe$ds_depart_wind_direction = as.factor(dataframe$ds_depart_wind_direction)
+
+#DS_DEPART_WIND_SPEED NOT INFORMED RENAME TO NO WIND
+dataframe$ds_depart_wind_speed = as.character(dataframe$ds_depart_wind_speed)
+dataframe$ds_depart_wind_speed[dataframe$ds_depart_wind_speed =="Not Informed"] <- "NO WIND"
+dataframe$ds_depart_wind_speed = as.factor(dataframe$ds_depart_wind_speed)
+
+
+#EXPECTED_DEPART_DATE TO DATE FORMAT
+dataframe$expected_depart_date = ymd(dataframe$expected_depart_date)
+
+#EXPECTED_REAL_DEPART_DATE TO DATE FORMAT
+dataframe$real_depart_date = ymd(dataframe$real_depart_date)
+
+#EXPECTED_ARRIVAL_DATE TO DATE FORMAT
+dataframe$expected_arrival_date = ymd(dataframe$expected_arrival_date)
+
+#EXPECTED_REAL_ARRIVAL_DATE TO DATE FORMAT
+dataframe$real_arrival_date = ymd(dataframe$real_depart_date)
 
 ## Import library
 library(DataExplorer)
@@ -145,21 +184,9 @@ library(dataMaid)
 ExPanD(dataframe)
 makeDataReport(dataframe, output = "html", replace = TRUE)  
 
-dataframe$ds_arrival_wind_direction[dataframe$ds_arrival_wind_direction == "Not Informed" ] <- NA
-dataframe_wind = dataframe %>% drop_na(ds_arrival_wind_direction)
 
-#PREDIÇÃO DS ARRIVAL WIND DIRECTION
-df_treino_AC <- dataframe_wind
-modelo_NA <- train(ds_arrival_wind_direction ~ .,data=df_treino_AC, method="rpart", trControl = trainControl(method="cv", number= 5))
-dataframe$ds_arrival_wind_direction[is.na(dataframe$ds_arrival_wind_direction)] <- predict(modelo_NA, dataframe[is.na(dataframe$ds_arrival_wind_direction),])
-sum(is.na(dataframe$arrival_ceiling))
+sum(bfd$justification_code[bfd$justification_code == "N/A"])
 
-count = sum((dataframe %>% filter(ds_arrival_wind_direction == "Not Informed")%>%count(ds_arrival_wind_direction))$n)
-
-wind = dataframe%>% filter(dataframe$ds_arrival_wind_direction == "Not Informed")
-
-
-
-
+Justcode = sum((bfd %>% filter(justification_code == "N/A")%>%count(justification_code))$n)
 
 
