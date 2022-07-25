@@ -15,3 +15,6 @@ The tasks were applied on the Brazilian Flight Dataset (BFD). This dataset was b
 
 ## Exploratory Data Analysis
 All plots produced in the exploratory analysis are available in the [plots directory](exploratory_analysis/plots) and can be reproduced by running the [exploratory_analysis](exploratory_analysis/exploratory_analysis.R) file.
+
+## Data Preprocessing
+Removing columns with unique values. Removal of outliers and inconsistent records. Missing data imputation and data transformation. As a result, the dataset has been shrunk from 820.403 records and 46 features to 612.287 records and 41 features. Data preprocessing can be reproduced by running the [data_preprocessing](data_preprocessing/data_preprocessing.R) file.
