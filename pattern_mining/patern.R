@@ -45,6 +45,32 @@ dataframe$expected_arrival_month = format(as.Date(dataframe$expected_arrival_dat
 dataframe[ , c('expected_depart_date', 'expected_arrival_date')] = list(NULL)
 
 
+# hour columns
+dataframe$expected_depart_hour = as.numeric(dataframe$expected_depart_hour)
+dataframe = dataframe %>% mutate(expected_depart_day_period = case_when(
+  expected_depart_hour >= 23 | expected_depart_hour <= 4  ~ "night",
+  expected_depart_hour >= 5  & expected_depart_hour <= 8  ~ "early morning",
+  expected_depart_hour >= 9  & expected_depart_hour <= 10 ~ "mid morning",
+  expected_depart_hour >= 11 & expected_depart_hour <= 12 ~ "late morning",
+  expected_depart_hour >= 13 & expected_depart_hour <= 16 ~ "afternoon",
+  expected_depart_hour >= 17 & expected_depart_hour <= 19 ~ "early evening",
+  expected_depart_hour >= 20 & expected_depart_hour <= 22 ~ "late evening"
+))
+
+dataframe$expected_arrival_hour = as.numeric(dataframe$expected_arrival_hour)
+dataframe = dataframe %>% mutate(expected_arrival_day_period = case_when(
+  expected_arrival_hour >= 23 | expected_arrival_hour <= 4  ~ "night",
+  expected_arrival_hour >= 5  & expected_arrival_hour <= 8  ~ "early morning",
+  expected_arrival_hour >= 9  & expected_arrival_hour <= 10 ~ "mid morning",
+  expected_arrival_hour >= 11 & expected_arrival_hour <= 12 ~ "late morning",
+  expected_arrival_hour >= 13 & expected_arrival_hour <= 16 ~ "afternoon",
+  expected_arrival_hour >= 17 & expected_arrival_hour <= 19 ~ "early evening",
+  expected_arrival_hour >= 20 & expected_arrival_hour <= 22 ~ "late evening"
+))
+
+dataframe[ , c('expected_depart_hour', 'expected_arrival_hour')] = list(NULL)
+
+
 ###################################################
 # ONLY FOR MVP: get only discretized columns
 df = dataframe %>% dplyr::select(starts_with("ds_depart"), 
