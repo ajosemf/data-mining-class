@@ -16,11 +16,12 @@ colnames(dataframe)
 
 
 ###################################################
-# TODO: remove unnecessary columns and columns already discretized
+# remove unnecessary columns and columns already discretized
 dataframe[ , c('flight_id', 
                'origin_icao',
                'real_depart_date',
                'real_depart_hour',
+               'departure_delay',
                'depart_wind_speed',
                'depart_wind_direction',
                'ds_depart_day_period',
@@ -33,10 +34,15 @@ dataframe[ , c('flight_id',
                'arrival_wind_direction',
                'situation_type'
                )] = list(NULL)
-colnames(dataframe)
+
 
 ###################################################
-# TODO: discretization
+# discretization
+
+# date columns
+dataframe$expected_depart_month = format(as.Date(dataframe$expected_depart_date, format="%Y/%m/%d"),"%m")
+dataframe$expected_arrival_month = format(as.Date(dataframe$expected_arrival_date, format="%Y/%m/%d"),"%m")
+dataframe[ , c('expected_depart_date', 'expected_arrival_date')] = list(NULL)
 
 
 ###################################################
