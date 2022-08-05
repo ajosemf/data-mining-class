@@ -14,9 +14,26 @@ library(dplyr)
 load("data/preprocess.rda")
 colnames(dataframe)
 
-###################################################
-# TODO: remove columns already discretized
 
+###################################################
+# TODO: remove unnecessary columns and columns already discretized
+dataframe[ , c('flight_id', 
+               'origin_icao',
+               'real_depart_date',
+               'real_depart_hour',
+               'depart_wind_speed',
+               'depart_wind_direction',
+               'ds_depart_day_period',
+               'destination_icao',
+               'real_arrival_date',
+               'real_arrival_hour',
+               'real_duration',
+               'arrival_delay',
+               'arrival_wind_speed',
+               'arrival_wind_direction',
+               'situation_type'
+               )] = list(NULL)
+colnames(dataframe)
 
 ###################################################
 # TODO: discretization
