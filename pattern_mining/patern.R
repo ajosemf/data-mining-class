@@ -76,6 +76,21 @@ dataframe$expected_arrival_day_period = as.factor(dataframe$expected_arrival_day
 dataframe[ , c('expected_depart_hour', 'expected_arrival_hour')] = list(NULL)
 
 
+# temperature column
+dataframe$ds_depart_temperature = discretize(dataframe$depart_temperature,
+                                             method = "fixed", 
+                                             breaks = c(-Inf, 10, 18, 30, 36, Inf),
+                                             labels = c("very cold", "cold", "normal", "hot", "very hot"))
+dataframe$depart_temperature = NULL
+
+dataframe$ds_arrival_temperature = discretize(dataframe$arrival_temperature,
+                                             method = "fixed", 
+                                             breaks = c(-Inf, 10, 18, 30, 36, Inf),
+                                             labels = c("very cold", "cold", "normal", "hot", "very hot"))
+dataframe$arrival_temperature = NULL
+
+
+
 ###################################################
 # ONLY FOR MVP: get only discretized columns
 df = dataframe %>% dplyr::select(starts_with("ds_depart"), 
