@@ -32,6 +32,7 @@ dataframe[ , c('flight_id',
                'arrival_delay',
                'arrival_wind_speed',
                'arrival_wind_direction',
+               'ds_arrival_day_period',
                'situation_type'
                )] = list(NULL)
 
@@ -43,6 +44,8 @@ dataframe[ , c('flight_id',
 dataframe$expected_depart_month = format(as.Date(dataframe$expected_depart_date, format="%Y/%m/%d"),"%m")
 dataframe$expected_arrival_month = format(as.Date(dataframe$expected_arrival_date, format="%Y/%m/%d"),"%m")
 dataframe[ , c('expected_depart_date', 'expected_arrival_date')] = list(NULL)
+dataframe$expected_depart_month = as.factor(dataframe$expected_depart_month)
+dataframe$expected_arrival_month = as.factor(dataframe$expected_arrival_month)
 
 
 # hour columns
@@ -68,6 +71,8 @@ dataframe = dataframe %>% mutate(expected_arrival_day_period = case_when(
   expected_arrival_hour >= 20 & expected_arrival_hour <= 22 ~ "late evening"
 ))
 
+dataframe$expected_depart_day_period = as.factor(dataframe$expected_depart_day_period)
+dataframe$expected_arrival_day_period = as.factor(dataframe$expected_arrival_day_period)
 dataframe[ , c('expected_depart_hour', 'expected_arrival_hour')] = list(NULL)
 
 
