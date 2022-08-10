@@ -76,24 +76,22 @@ dataframe$expected_arrival_day_period = as.factor(dataframe$expected_arrival_day
 dataframe[ , c('expected_depart_hour', 'expected_arrival_hour')] = list(NULL)
 
 
-# temperature column
-dataframe$ds_depart_temperature = discretize(dataframe$depart_temperature,
-                                             method = "fixed", 
-                                             breaks = c(-Inf, 10, 18, 30, 36, Inf),
-                                             labels = c("very cold", "cold", "normal", "hot", "very hot"))
+# temperature columns
+dataframe$ds_depart_temperature = ordered(cut(dataframe$depart_temperature, c(-Inf, 10, 18, 30, 36, Inf)),
+                                          labels = c("very cold", "cold", "normal", "hot", "very hot"))
 dataframe$depart_temperature = NULL
 
-dataframe$ds_arrival_temperature = discretize(dataframe$arrival_temperature,
-                                             method = "fixed", 
-                                             breaks = c(-Inf, 10, 18, 30, 36, Inf),
-                                             labels = c("very cold", "cold", "normal", "hot", "very hot"))
+dataframe$ds_arrival_temperature = ordered(cut(dataframe$arrival_temperature, c(-Inf, 10, 18, 30, 36, Inf)),
+                                           labels = c("very cold", "cold", "normal", "hot", "very hot"))
 dataframe$arrival_temperature = NULL
 
 
-
 ###################################################
-# ONLY FOR MVP: get only discretized columns
-df = dataframe %>% dplyr::select(starts_with("ds_depart"), 
+# get depart columns
+df = dataframe %>% dplyr::select(airline_icao,
+                                 linetype_code,
+                                 starts_with("expected_depart"),
+                                 starts_with("ds_depart"),
                                  Partida_Atrasada)
 df$Partida_Atrasada = as.factor(df$Partida_Atrasada)
 colnames(df)
@@ -103,7 +101,7 @@ rm(dataframe)
 # apriori
 
 transactions = as(df, "transactions")
-rules <- apriori(df, parameter=list(supp = 0.1, conf = 0.3, minlen=2, maxlen= 10, target = "rules"), 
+rules <- apriori(df, parameter=list(supp = 0.1, conf = 0.2, minlen=2, maxlen= 10, target = "rules"), 
                  appearance=list(rhs = c("Partida_Atrasada=1"), default="lhs"), control=NULL)
 inspect(rules)
 
