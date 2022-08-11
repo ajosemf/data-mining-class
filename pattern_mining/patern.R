@@ -146,6 +146,26 @@ dataframe$depart_visibility = NULL
 dataframe$arrival_visibility = NULL
 
 
+# ceiling columns
+hist(dataframe$depart_ceiling)
+hist(dataframe$arrival_ceiling)
+
+set.seed(1)
+dataframe$ds_depart_ceiling = discretize(dataframe$depart_ceiling,
+                                         method = "cluster", 
+                                         breaks = 5,
+                                         ordered_result=TRUE)
+set.seed(1)
+dataframe$ds_arrival_ceiling = discretize(dataframe$arrival_ceiling,
+                                          method = "cluster", 
+                                          breaks = 5,
+                                          ordered_result=TRUE)
+plot(dataframe$ds_depart_ceiling)
+plot(dataframe$ds_arrival_ceiling)
+dataframe$depart_ceiling = NULL
+dataframe$arrival_ceiling = NULL
+
+
 ###################################################
 # get depart columns
 df = dataframe %>% dplyr::select(airline_icao,
