@@ -86,6 +86,28 @@ dataframe$ds_arrival_temperature = ordered(cut(dataframe$arrival_temperature, c(
 dataframe$arrival_temperature = NULL
 
 
+# dew point columns
+hist(dataframe$depart_dew_point)
+hist(dataframe$arrival_dew_point)
+
+set.seed(1)
+dataframe$ds_depart_dew_point = discretize(dataframe$depart_dew_point,
+                                           method = "cluster", 
+                                           breaks = 5,
+                                           ordered_result=TRUE)
+set.seed(1)
+dataframe$ds_arrival_dew_point = discretize(dataframe$arrival_dew_point,
+                                            method = "cluster", 
+                                            breaks = 5,
+                                            ordered_result=TRUE)
+plot(dataframe$ds_depart_dew_point)
+plot(dataframe$ds_arrival_dew_point)
+dataframe$depart_dew_point = NULL
+dataframe$arrival_dew_point = NULL
+
+
+
+
 ###################################################
 # get depart columns
 df = dataframe %>% dplyr::select(airline_icao,
