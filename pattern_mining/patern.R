@@ -106,6 +106,25 @@ dataframe$depart_dew_point = NULL
 dataframe$arrival_dew_point = NULL
 
 
+# humidity columns
+hist(dataframe$depart_humidity)
+hist(dataframe$arrival_humidity)
+
+set.seed(1)
+dataframe$ds_depart_humidity = discretize(dataframe$depart_humidity,
+                                           method = "cluster", 
+                                           breaks = 5,
+                                           ordered_result=TRUE)
+set.seed(1)
+dataframe$ds_arrival_humidity = discretize(dataframe$arrival_humidity,
+                                           method = "cluster", 
+                                           breaks = 5,
+                                           ordered_result=TRUE)
+plot(dataframe$ds_depart_humidity)
+plot(dataframe$ds_arrival_humidity)
+dataframe$depart_humidity = NULL
+dataframe$arrival_humidity = NULL
+
 
 
 ###################################################
