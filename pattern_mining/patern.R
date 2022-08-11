@@ -126,6 +126,25 @@ dataframe$depart_humidity = NULL
 dataframe$arrival_humidity = NULL
 
 
+# visibility columns
+hist(dataframe$depart_visibility)
+hist(dataframe$arrival_visibility)
+
+set.seed(1)
+dataframe$ds_depart_visibility = discretize(dataframe$depart_visibility,
+                                            method = "cluster", 
+                                            breaks = 5,
+                                            ordered_result=TRUE)
+set.seed(1)
+dataframe$ds_arrival_visibility = discretize(dataframe$arrival_visibility,
+                                             method = "cluster", 
+                                             breaks = 5,
+                                             ordered_result=TRUE)
+plot(dataframe$ds_depart_visibility)
+plot(dataframe$ds_arrival_visibility)
+dataframe$depart_visibility = NULL
+dataframe$arrival_visibility = NULL
+
 
 ###################################################
 # get depart columns
