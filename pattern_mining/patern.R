@@ -76,6 +76,25 @@ dataframe$expected_arrival_day_period = as.factor(dataframe$expected_arrival_day
 dataframe[ , c('expected_depart_hour', 'expected_arrival_hour')] = list(NULL)
 
 
+# expected duration column
+hist(dataframe$expected_duration)
+dataframe = dataframe %>% mutate(ds_expected_duration = case_when(
+  expected_duration < 30                              ~ "[,30)",
+  expected_duration >= 30 & expected_duration < 60    ~ "[30,60)",
+  expected_duration >= 60 & expected_duration < 90    ~ "[60,90)",
+  expected_duration >= 90 & expected_duration < 120   ~ "[90,120)",
+  expected_duration >= 120 & expected_duration < 150  ~ "[120,150)",
+  expected_duration >= 150 & expected_duration < 180  ~ "[150,180)",
+  expected_duration >= 180 & expected_duration < 210  ~ "[180,210)",
+  expected_duration >= 210                            ~ "[210,]"
+))
+dataframe$ds_expected_duration = as.factor(dataframe$ds_expected_duration)
+dataframe$ds_expected_duration <- factor(dataframe$ds_expected_duration, 
+                                         levels=c("[,30)", "[30,60)", "[60,90)", "[90,120)", "[120,150)", "[150,180)", "[180,210)", "[210,]"))
+plot(dataframe$ds_expected_duration)
+dataframe$expected_duration = NULL
+
+
 # temperature columns
 dataframe$ds_depart_temperature = ordered(cut(dataframe$depart_temperature, c(-Inf, 10, 18, 30, 36, Inf)),
                                           labels = c("very cold", "cold", "normal", "hot", "very hot"))
