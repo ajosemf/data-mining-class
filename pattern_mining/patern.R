@@ -200,14 +200,17 @@ rm(dataframe)
 # apriori
 
 transactions = as(df, "transactions")
-rules <- apriori(df, parameter=list(supp = 0.1, conf = 0.2, minlen=2, maxlen= 10, target = "rules"), 
-                 appearance=list(rhs = c("Partida_Atrasada=1"), default="lhs"), control=NULL)
-inspect(rules)
+rules_delay <- apriori(df, parameter=list(supp = 0.1, conf = 0.4, minlen=2, maxlen= 10, target = "rules"), 
+                       appearance=list(rhs = c("Partida_Atrasada=1"), default="lhs"), control=NULL)  # 8 rules
+rules_non_delay <- apriori(df, parameter=list(supp = 0.2, conf = 0.8, minlen=2, maxlen= 10, target = "rules"), 
+                           appearance=list(rhs = c("Partida_Atrasada=0"), default="lhs"), control=NULL)  # 4 rules
+inspect(rules_delay)
+inspect(rules_non_delay)
 
 ###################################################
 # remove redundant rules
 
-nrules <- rules[!is.redundant(rules)]
+nrules <- rules[!is.redundant(rules_delay)]
 inspect(nrules)
 
 ###################################################
