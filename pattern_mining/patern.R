@@ -5,7 +5,7 @@ library(dplyr)
 
 #--------------------------------------------------
 #--------------------------------------------------
-#                DEPARTURE
+#                PREPROCESSING
 #--------------------------------------------------
 #--------------------------------------------------
 
@@ -186,6 +186,22 @@ dataframe$arrival_ceiling = NULL
 
 
 ###################################################
+# rename
+# dataframe <- dataframe %>% rename(ds_arrival_cloudiness = arrival_cloudiness)
+# Error in rename(., ds_arrival_cloudiness = arrival_cloudiness) : 
+#   unused argument (ds_arrival_cloudiness = arrival_cloudiness)
+names(dataframe)[names(dataframe) == 'arrival_cloudiness'] = 'ds_arrival_cloudiness'
+
+
+
+#--------------------------------------------------
+#--------------------------------------------------
+#                DEPARTURE
+#--------------------------------------------------
+#--------------------------------------------------
+
+
+###################################################
 # get depart columns
 df = dataframe %>% dplyr::select(airline_icao,
                                  linetype_code,
@@ -194,7 +210,7 @@ df = dataframe %>% dplyr::select(airline_icao,
                                  Partida_Atrasada)
 df$Partida_Atrasada = as.factor(df$Partida_Atrasada)
 colnames(df)
-rm(dataframe)
+
 
 ###################################################
 # apriori
