@@ -193,6 +193,10 @@ dataframe$arrival_ceiling = NULL
 names(dataframe)[names(dataframe) == 'arrival_cloudiness'] = 'ds_arrival_cloudiness'
 
 
+###################################################
+# stage data
+save(dataframe, file="data/discretized.rda")
+
 
 #--------------------------------------------------
 #--------------------------------------------------
