@@ -18,3 +18,6 @@ All plots produced in the exploratory analysis are available in the [plots direc
 
 ## Data Preprocessing
 Removing columns with unique values. Removal of outliers and inconsistent records. Missing data imputation and data transformation. As a result, the dataset has been shrunk from 820.403 records and 46 features to 612.287 records and 41 features. Data preprocessing can be reproduced by running the [data_preprocessing](data_preprocessing/data_preprocessing.R) file.
+
+## Frequent Pattern Mining
+Discretization and selection of variables. Application of frequent pattern mining techniques. Code available in [pattern_mining](pattern_mining/patern.R) file.
