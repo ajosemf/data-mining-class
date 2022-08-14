@@ -187,9 +187,6 @@ dataframe$arrival_ceiling = NULL
 
 ###################################################
 # rename
-# dataframe <- dataframe %>% rename(ds_arrival_cloudiness = arrival_cloudiness)
-# Error in rename(., ds_arrival_cloudiness = arrival_cloudiness) : 
-#   unused argument (ds_arrival_cloudiness = arrival_cloudiness)
 names(dataframe)[names(dataframe) == 'arrival_cloudiness'] = 'ds_arrival_cloudiness'
 
 
@@ -204,11 +201,16 @@ save(dataframe, file="data/discretized.rda")
 #--------------------------------------------------
 #--------------------------------------------------
 
+library(arules)
+library(dplyr)
+load("data/discretized.rda")
+
 
 ###################################################
 # get depart columns
 df = dataframe %>% dplyr::select(airline_icao,
                                  linetype_code,
+                                 ds_expected_duration,
                                  starts_with("expected_depart"),
                                  starts_with("ds_depart"),
                                  Partida_Atrasada)
@@ -217,49 +219,37 @@ colnames(df)
 
 
 ###################################################
-# apriori
+# Partida Atrasada = 1
 
 transactions = as(df, "transactions")
-rules_delay <- apriori(df, parameter=list(supp = 0.1, conf = 0.4, minlen=2, maxlen= 10, target = "rules"), 
-                       appearance=list(rhs = c("Partida_Atrasada=1"), default="lhs"), control=NULL)  # 8 rules
-rules_non_delay <- apriori(df, parameter=list(supp = 0.2, conf = 0.8, minlen=2, maxlen= 10, target = "rules"), 
-                           appearance=list(rhs = c("Partida_Atrasada=0"), default="lhs"), control=NULL)  # 4 rules
-inspect(rules_delay)
-inspect(rules_non_delay)
-
-###################################################
-# remove redundant rules
-
-nrules <- rules[!is.redundant(rules_delay)]
-inspect(nrules)
-
-###################################################
-# process interesting measures
-
-imrules <- interestMeasure(nrules, 
-                           measure = c("support", "confidence", "lift", "chiSquared", "count"),
-                           transactions = transactions)
-imrules
-
-###################################################
-# merge rules and interesting measures on dataframe
-
-nrules = as(nrules, "data.frame")
-nrules$chiSquared = imrules$chiSquared
-nrules
-
-###################################################
-# sort 
-
-# by lift, confidence, support 
-nrules[order(-nrules$lift, -nrules$confidence, -nrules$support),]
-
-# by chiSquared, confidence, support 
-nrules[order(-nrules$chiSquared, -nrules$confidence, -nrules$support),]
+rules <- apriori(df, parameter=list(supp = 0.1, conf = 0.4, minlen=2, maxlen= 10, target = "rules"),
+                 appearance=list(rhs = c("Partida_Atrasada=1"), default="lhs"), control=NULL)
+# inspect(rules)
+rules <- rules[!is.redundant(rules)]  # remove redundant rules
+measures = c("support", "confidence", "lift", "chiSquared", 'kulc', 'imbalance', "count")
+imrules <- interestMeasure(rules, measure = measures, transactions = transactions)  # process interesting measures
+rules = as(rules, "data.frame")  # merge rules and interesting measures on dataframe
+rules$chiSquared = imrules$chiSquared
+rules$kulc = imrules$kulc
+rules$imbalance = imrules$imbalance
+rules
 
 
 ###################################################
-# analysis
+# Partida Atrasada = 0
+
+transactions = as(df, "transactions")
+rules <- apriori(df, parameter=list(supp = 0.1, conf = 0.8, minlen=2, maxlen= 10, target = "rules"),
+                 appearance=list(rhs = c("Partida_Atrasada=0"), default="lhs"), control=NULL)
+# inspect(rules)
+rules <- rules[!is.redundant(rules)]  # remove redundant rules
+measures = c("support", "confidence", "lift", "chiSquared", 'kulc', 'imbalance', "count")
+imrules <- interestMeasure(rules, measure = measures, transactions = transactions)  # process interesting measures
+rules = as(rules, "data.frame")  # merge rules and interesting measures on dataframe
+rules$chiSquared = imrules$chiSquared
+rules$kulc = imrules$kulc
+rules$imbalance = imrules$imbalance
+rules
 
 
 #--------------------------------------------------
@@ -268,3 +258,57 @@ nrules[order(-nrules$chiSquared, -nrules$confidence, -nrules$support),]
 #--------------------------------------------------
 #--------------------------------------------------
 
+
+###################################################
+# get arrival columns
+df = dataframe %>% dplyr::select(airline_icao,
+                                 linetype_code,
+                                 ds_expected_duration,
+                                 starts_with("expected_arrival"),
+                                 starts_with("ds_arrival"),
+                                 Partida_Atrasada,
+                                 Chegada_Atrasada)
+df$Partida_Atrasada = as.factor(df$Partida_Atrasada)
+df$Chegada_Atrasada = as.factor(df$Chegada_Atrasada)
+colnames(df)
+
+
+###################################################
+# Chegada Atrasada = 1
+
+transactions = as(df, "transactions")
+rules <- apriori(df, parameter=list(supp = 0.1, conf = 0.6, minlen=2, maxlen= 10, target = "rules"),
+                 appearance=list(rhs = c("Chegada_Atrasada=1"), default="lhs"), control=NULL)
+# inspect(rules)
+rules <- rules[!is.redundant(rules)]  # remove redundant rules
+measures = c("support", "confidence", "lift", "chiSquared", 'kulc', 'imbalance', "count")
+imrules <- interestMeasure(rules, measure = measures, transactions = transactions)  # process interesting measures
+rules = as(rules, "data.frame")  # merge rules and interesting measures on dataframe
+rules$chiSquared = imrules$chiSquared
+rules$kulc = imrules$kulc
+rules$imbalance = imrules$imbalance
+rules
+
+
+###################################################
+# Chegada Atrasada = 0
+
+transactions = as(df, "transactions")
+rules <- apriori(df, parameter=list(supp = 0.3, conf = 0.8, minlen=2, maxlen= 10, target = "rules"),
+                 appearance=list(rhs = c("Chegada_Atrasada=0"), default="lhs"), control=NULL)
+# inspect(rules)
+rules <- rules[!is.redundant(rules)]  # remove redundant rules
+measures = c("support", "confidence", "lift", "chiSquared", 'kulc', 'imbalance', "count")
+imrules <- interestMeasure(rules, measure = measures, transactions = transactions)  # process interesting measures
+rules = as(rules, "data.frame")  # merge rules and interesting measures on dataframe
+rules$chiSquared = imrules$chiSquared
+rules$kulc = imrules$kulc
+rules$imbalance = imrules$imbalance
+rules
+
+
+###################################################
+# sort 
+
+# by kulc, imbalance, lift, support, confidence 
+rules[order(-rules$kulc, rules$imbalance, -rules$lift, -rules$support, -rules$confidence),]
