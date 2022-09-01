@@ -44,3 +44,19 @@ boxplot(data$velocidade)
 tmp = dplyr::filter(data, velocidade <= 5)
 nrow(tmp) / nrow(data)  # 54% with velocidade <= 5 km/h
 
+
+#--------------------------------------------------
+#--------------------------------------------------
+#       FEATURE SELECTION AND PREPROCESSING
+#--------------------------------------------------
+#--------------------------------------------------
+
+# removes records associated to '2014-05-01'
+data$date = as.Date(data$date)
+data = dplyr::filter(data, date == '2014-05-02')
+
+# select features
+data = dplyr::select(data, c(lat, long, hour, velocidade))
+
+# stage data
+save(data, file="data/clustering.rda")
