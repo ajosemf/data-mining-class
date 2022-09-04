@@ -60,3 +60,53 @@ data = dplyr::select(data, c(lat, long, hour, velocidade))
 
 # stage data
 save(data, file="data/clustering.rda")
+
+
+#--------------------------------------------------
+#--------------------------------------------------
+#         CLUSTERING / OUTLIER DETECTION
+#--------------------------------------------------
+#--------------------------------------------------
+
+
+# install.packages("factoextra")
+library(dplyr)
+library(factoextra)
+source("utils/kmod.R")
+
+# load data
+load("data/clustering.rda")
+
+# found best k
+set.seed(123)
+data.sample = sample_n(data, 10000)
+fviz_nbclust(data.sample, kmeans, method = "wss") +
+  geom_vline(xintercept = 4, linetype = 2)
+
+# kmodR with sample
+data.sample = scale(data.sample)
+set.seed(123)
+cl <- kmod(data.sample, 4, 10)
+data[cl$L_index, ]  # outliers
+
+# kmodR with all data
+data.scaled = scale(data)
+Sys.time()
+cl <- kmod(data.scaled, 4, 10)
+Sys.time()
+data[cl$L_index, ]  # outliers
+# lat     long hour velocidade
+# 1645475 -22.70337 -43.6932    2       81.3
+# 1660133 -22.70337 -43.6932    2       81.3
+# 1955159 -22.70337 -43.6932    2       81.3
+# 1971041 -22.70337 -43.6932    3       81.3
+# 1978165 -22.70337 -43.6932    3       81.3
+# 1985284 -22.70337 -43.6932    3       81.3
+# 2285378 -22.70337 -43.6932    3       81.3
+# 2292627 -22.70337 -43.6932    3       81.3
+# 2299874 -22.70337 -43.6932    3       81.3
+# 2307070 -22.70337 -43.6932    3       81.3
+
+# stage outliers
+idxs = cl$L_index
+save(idxs, file = "data/clustering_outliers_idx.rda")
