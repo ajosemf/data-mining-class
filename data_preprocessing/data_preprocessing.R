@@ -179,6 +179,8 @@ dataframe$expected_arrival_date = ymd(dataframe$expected_arrival_date)
 #EXPECTED_REAL_ARRIVAL_DATE TO DATE FORMAT
 dataframe$real_arrival_date = ymd(dataframe$real_depart_date)
 
+save(dataframe, file="../data/preprocess.rda")
+
 ## Import library
 library(DataExplorer)
 

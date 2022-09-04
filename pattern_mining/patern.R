@@ -1,6 +1,7 @@
 source("utils/myGraphic.R")
 
-loadlibrary("arules")
+
+library("arules")
 library(dplyr)
 
 #--------------------------------------------------
@@ -11,7 +12,7 @@ library(dplyr)
 
 ###################################################
 # load data
-load("data/preprocess.rda")
+load("../data/preprocess.rda")
 colnames(dataframe)
 
 
@@ -192,7 +193,7 @@ names(dataframe)[names(dataframe) == 'arrival_cloudiness'] = 'ds_arrival_cloudin
 
 ###################################################
 # stage data
-save(dataframe, file="data/discretized.rda")
+save(dataframe, file="../data/discretized.rda")
 
 
 #--------------------------------------------------
@@ -203,7 +204,7 @@ save(dataframe, file="data/discretized.rda")
 
 library(arules)
 library(dplyr)
-load("data/discretized.rda")
+load("../data/discretized.rda")
 
 
 ###################################################
