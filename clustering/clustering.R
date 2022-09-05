@@ -110,3 +110,58 @@ data[cl$L_index, ]  # outliers
 # stage outliers
 idxs = cl$L_index
 save(idxs, file = "data/clustering_outliers_idx.rda")
+
+
+#--------------------------------------------------
+#--------------------------------------------------
+#             OUTLIERS ANALYSIS
+#--------------------------------------------------
+#--------------------------------------------------
+
+library(dplyr)
+
+load("data/mobility-2014-05-02.RData")
+load("data/clustering_outliers_idx.rda")
+
+# filter outliers
+outliers = data[idxs,]
+outliers
+
+# lat/long distribution
+summary(outliers$lat)
+summary(outliers$long)
+hist(data$lat)
+hist(data$long)
+
+# velocidade distribution
+hist(outliers$velocidade)
+hist(data$velocidade)
+
+# velocity for each lat/long pair
+df <- data.frame(latitude=double(),
+                 longitude=double(),
+                 velocity=double(),
+                 average_velocity=double(),
+                 sd_velocity=double(),
+                 num_obs=integer())
+for( i in rownames(outliers) ) {
+  velocity = outliers[i, "velocidade"]
+  latitude = outliers[i, "lat"]
+  longitude = outliers[i, "long"]
+  max_lat = latitude + 0.002
+  min_lat = latitude - 0.002
+  max_long = longitude + 0.002
+  min_long = longitude - 0.002
+  tmp = dplyr::filter(data,
+                      lat >= min_lat,
+                      lat <= max_lat,
+                      long >= min_long,
+                      long <= max_long,
+                      hour == 14)
+  mean_velocity = mean(tmp$velocidade)
+  sd_velocity = sd(tmp$velocidade)
+  num_obs = nrow(tmp)
+  df = rbind(df, c(latitude, longitude, velocity, mean_velocity, sd_velocity, num_obs))
+}
+names(df) = c("latitude", "longitude", "velocity", "average_velocity", "sd_velocity", "num_obs")
+df
