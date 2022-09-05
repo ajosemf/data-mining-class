@@ -21,3 +21,9 @@ Removing columns with unique values. Removal of outliers and inconsistent record
 
 ## Frequent Pattern Mining
 Discretization and selection of variables. Application of frequent pattern mining techniques. Code available in [pattern_mining](pattern_mining/patern.R) file.
+
+## Prediction
+Decision Tree, KNN and Naive Bayes models were applied to predict the delay of flights. The code is available in the [prediction](prediction/prediction.R) file.
+
+## Clustering
+A generalized implementation of K-means were applied to simultaneously cluster and detect outliers. In this task we used a sample of the dataset of the public transport system by bus in the city of RJ. The code is available in the [clustering](clustering/clustering.R) file.
